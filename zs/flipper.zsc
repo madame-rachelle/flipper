@@ -1,0 +1,114 @@
+// Copyright 2019 Rachael Alexanderson
+// Uses small code snippets and ideas found in Tilt++, Copyright 2017-2019 Nash Muhandes
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions
+// are met:
+//
+// 1. Redistributions of source code must retain the above copyright
+//    notice, this list of conditions and the following disclaimer.
+// 2. Redistributions in binary form must reproduce the above copyright
+//    notice, this list of conditions and the following disclaimer in the
+//    documentation and/or other materials provided with the distribution.
+// 3. The name of the author may not be used to endorse or promote products
+//    derived from this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+// IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+// OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+// IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+// INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+// NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+// THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+class FlipperHandler : EventHandler
+{
+	PlayerInfo ptr, console_ptr;
+	override void UiTick()
+	{
+		if (console_ptr)
+			Shader.SetEnabled(ptr, "flipper", (CVar.FindCVar("cheat_turnitoff").GetInt() == 0));
+	}
+	override void PlayerEntered(PlayerEvent e)
+	{
+		ptr = players[e.PlayerNumber];
+		if (e.PlayerNumber == consoleplayer)
+			console_ptr = ptr;
+		ptr.mo.A_GiveInventory("FlipperInventory");
+	}
+	override void PlayerDied(PlayerEvent e)
+	{
+		ptr.mo.A_TakeInventory("FlipperInventory");
+	}
+	override void PlayerRespawned(PlayerEvent e)
+	{
+		ptr = players[e.PlayerNumber];
+		ptr.mo.A_GiveInventory("FlipperInventory");
+	}
+	override void WorldThingSpawned(WorldEvent e)
+	{
+		e.Thing.bSpriteFlip = !e.Thing.bSpriteFlip;
+	}
+}
+
+class FlipperInventory : CustomInventory
+{
+	float oldangle;
+	bool runOnce;
+
+	Default
+	{
+		Inventory.MaxAmount 1;
+		+INVENTORY.UNDROPPABLE
+		+INVENTORY.UNTOSSABLE
+		+INVENTORY.UNCLEARABLE
+		+INVENTORY.AUTOACTIVATE
+		
+	}
+
+	override void Tick(void)
+	{
+		if (CVar.FindCVar("cheat_turnitoff").GetInt() != 0)
+		{
+			// turn it off!
+			if (runOnce)
+			{
+				playerpawn(Owner).SideMove1 = playerpawn(Owner).default.SideMove1;
+				playerpawn(Owner).SideMove2 = playerpawn(Owner).default.SideMove2;
+				runOnce = false;
+			}			
+		}
+		else
+		{
+			if (!runOnce)
+			{
+				oldangle = owner.angle;
+				runOnce = true;
+				if (playerpawn(Owner)) {
+					playerpawn(Owner).SideMove1 = playerpawn(Owner).default.SideMove1 * -1;
+					playerpawn(Owner).SideMove2 = playerpawn(Owner).default.SideMove2 * -1;
+				}
+			}
+			else
+			{
+				Owner.A_SetAngle(oldangle * 2 - owner.angle, SPF_INTERPOLATE);
+				oldangle = owner.angle;
+			}
+		}
+		Super.Tick();
+	}
+
+	States
+	{
+	Use:
+		TNT1 A 0;
+		Fail;
+	Pickup:
+		TNT1 A 0 { return true; }
+		Stop;
+	}
+}
