@@ -57,7 +57,7 @@ class FlipperHandler : EventHandler
 
 class FlipperInventory : CustomInventory
 {
-	float oldangle;
+	double oldangle;
 	bool runOnce;
 
 	Default
