@@ -75,7 +75,7 @@ class FlipperInventory : CustomInventory
 		if (CVar.FindCVar("cheat_turnitoff").GetInt() != 0)
 		{
 			// turn it off!
-			if (runOnce)
+			if (Owner && runOnce)
 			{
 				playerpawn(Owner).SideMove1 = playerpawn(Owner).default.SideMove1;
 				playerpawn(Owner).SideMove2 = playerpawn(Owner).default.SideMove2;
@@ -86,17 +86,20 @@ class FlipperInventory : CustomInventory
 		{
 			if (!runOnce)
 			{
-				oldangle = owner.angle;
-				runOnce = true;
-				if (playerpawn(Owner)) {
-					playerpawn(Owner).SideMove1 = playerpawn(Owner).default.SideMove1 * -1;
-					playerpawn(Owner).SideMove2 = playerpawn(Owner).default.SideMove2 * -1;
+				if (Owner)
+				{
+					oldangle = Owner.angle;
+					runOnce = true;
+					if (playerpawn(Owner)) {
+						playerpawn(Owner).SideMove1 = playerpawn(Owner).default.SideMove1 * -1;
+						playerpawn(Owner).SideMove2 = playerpawn(Owner).default.SideMove2 * -1;
+					}
 				}
 			}
 			else
 			{
-				Owner.A_SetAngle(oldangle * 2 - owner.angle, SPF_INTERPOLATE);
-				oldangle = owner.angle;
+				Owner.A_SetAngle(oldangle * 2 - Owner.angle, SPF_INTERPOLATE);
+				oldangle = Owner.angle;
 			}
 		}
 		Super.Tick();
