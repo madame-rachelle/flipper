@@ -1,1 +1,1 @@
-user bool cheat_turnitoff = false;
+server int flipper_method = 5;

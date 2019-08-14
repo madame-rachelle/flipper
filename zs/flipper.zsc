@@ -25,13 +25,18 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+// cvar flipper_method
+// flipper_method & 1 = enable shader and turn reversing (the 'fake' backwards method)
+// flipper_method & 2 = enable levelcompatibility method (the vertex and line flipping method)
+// flipper_method & 4 = enable sprite flipping (useful with method 1)
+
 class FlipperHandler : EventHandler
 {
 	PlayerInfo ptr, console_ptr;
 	override void UiTick()
 	{
 		if (console_ptr)
-			Shader.SetEnabled(ptr, "flipper", (CVar.FindCVar("cheat_turnitoff").GetInt() == 0));
+			Shader.SetEnabled(ptr, "flipper", (CVar.FindCVar("flipper_method").GetInt() & 1) == 1);
 	}
 	override void PlayerEntered(PlayerEvent e)
 	{
@@ -51,7 +56,14 @@ class FlipperHandler : EventHandler
 	}
 	override void WorldThingSpawned(WorldEvent e)
 	{
-		e.Thing.bSpriteFlip = !e.Thing.bSpriteFlip;
+		if ((CVar.FindCVar("flipper_method").GetInt() & 4) == 4)
+			e.Thing.bSpriteFlip = !e.Thing.bSpriteFlip;
+		/*
+		if ((CVar.FindCVar("flipper_method").GetInt() & 2) == 2 && level.time < 1)
+		{
+			e.Thing.A_SetAngle(180 - e.Thing.angle);
+			e.Thing.SetOrigin((e.Thing.Pos.X * -1, e.Thing.Pos.Y, e.Thing.Pos.Z), false);
+		}*/
 	}
 }
 
@@ -72,7 +84,10 @@ class FlipperInventory : CustomInventory
 
 	override void Tick(void)
 	{
-		if (CVar.FindCVar("cheat_turnitoff").GetInt() != 0)
+		bool RunThisTic = (CVar.FindCVar("flipper_method").GetInt() & 1) != 1;
+
+
+		if (RunThisTic)
 		{
 			// turn it off!
 			if (Owner && runOnce)
@@ -113,5 +128,41 @@ class FlipperInventory : CustomInventory
 	Pickup:
 		TNT1 A 0 { return true; }
 		Stop;
+	}
+}
+
+class LevelFlipper : LevelCompatibility
+{
+	protected void Apply(Name checksum, String mapname)
+	{
+		{
+			if ((CVar.FindCVar("flipper_method").GetInt() & 2) == 2)
+			{
+				for (int i = 0; i < level.vertexes.size(); i++) {
+					double x = level.vertexes[i].p.x * -1;
+					double y = level.vertexes[i].p.y;
+					setVertex(i, x, y);
+				}
+				for (int i = 0; i < level.lines.size(); i++) {
+					FlipLine(i);
+					double lx = level.lines[i].v1.p.x - level.lines[i].v2.p.x;
+					double ly = level.lines[i].v1.p.y - level.lines[i].v2.p.y;
+					double length = sqrt(lx * lx + ly * ly);
+					for (int s = 0; s < 2; s++)
+						if (level.lines[i].sidedef[s])
+							for (int p = 0; p < 3; p++)
+							{
+								level.lines[i].sidedef[s].SetTextureXOffset(p,
+									-level.lines[i].sidedef[s].GetTextureXOffset(p) - length);
+								level.lines[i].sidedef[s].MultiplyTextureXScale(p, -1.0);
+							}
+				}
+				for (int i = 0; i < GetNumMapThings(); i++) {
+					Vector3 thingpos = GetMapThingPos(i);
+					SetThingXY(i, thingpos.x * -1, thingpos.y);
+					SetMapThingAngle(i, (540 - GetMapThingAngle(i)) % 360);
+				}
+			}
+		}
 	}
 }
