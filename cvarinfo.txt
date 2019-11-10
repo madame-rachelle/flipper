@@ -1,1 +1,1 @@
-server int flipper_method = 5;
+server int flipper_method = 2;
