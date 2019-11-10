@@ -131,7 +131,7 @@ class FlipperInventory : CustomInventory
 	}
 }
 
-class LevelFlipper : LevelCompatibility
+class LevelFlipper : LevelPostProcessor
 {
 	protected void Apply(Name checksum, String mapname)
 	{
@@ -157,10 +157,10 @@ class LevelFlipper : LevelCompatibility
 								level.lines[i].sidedef[s].MultiplyTextureXScale(p, -1.0);
 							}
 				}
-				for (int i = 0; i < GetNumMapThings(); i++) {
-					Vector3 thingpos = GetMapThingPos(i);
+				for (int i = 0; i < GetThingCount(); i++) {
+					Vector3 thingpos = GetThingPos(i);
 					SetThingXY(i, thingpos.x * -1, thingpos.y);
-					SetMapThingAngle(i, (540 - GetMapThingAngle(i)) % 360);
+					SetThingAngle(i, (540 - GetThingAngle(i)) % 360);
 				}
 			}
 		}

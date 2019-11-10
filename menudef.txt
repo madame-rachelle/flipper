@@ -1,0 +1,18 @@
+OptionValue "FlipperTypes"
+{
+	0, "No Flipping"
+	1, "Shader"
+	2, "Map"
+	4, "Sprites"
+
+	3, "Shader + Map"
+	5, "Shader + Sprites"
+	6, "Map + Sprites"
+
+	7, "Flip All"
+}
+
+AddOptionMenu "OptionsMenu"
+{
+	Option "Map Flipping Type", flipper_method, "FlipperTypes"
+}
