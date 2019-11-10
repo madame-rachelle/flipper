@@ -27,7 +27,7 @@
 
 // cvar flipper_method
 // flipper_method & 1 = enable shader and turn reversing (the 'fake' backwards method)
-// flipper_method & 2 = enable levelcompatibility method (the vertex and line flipping method)
+// flipper_method & 2 = enable levelpostprocessor method (the vertex and line flipping method)
 // flipper_method & 4 = enable sprite flipping (useful with method 1)
 
 class FlipperHandler : EventHandler
