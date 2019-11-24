@@ -58,12 +58,55 @@ class FlipperHandler : EventHandler
 	{
 		if ((CVar.FindCVar("flipper_method").GetInt() & 4) == 4)
 			e.Thing.bSpriteFlip = !e.Thing.bSpriteFlip;
-		/*
-		if ((CVar.FindCVar("flipper_method").GetInt() & 2) == 2 && level.time < 1)
+	}
+	override void WorldLoaded(WorldEvent e)
+	{
+	/*	for (int i = 0; i < level.Sectors.Size(); i++)
 		{
-			e.Thing.A_SetAngle(180 - e.Thing.angle);
-			e.Thing.SetOrigin((e.Thing.Pos.X * -1, e.Thing.Pos.Y, e.Thing.Pos.Z), false);
-		}*/
+			Sector s = level.Sectors[i];
+			SecSpecial ss;
+			s.GetSpecial(ss);
+			if (ss.special >= 40 && ss.special <= 42) // e wind
+			{
+				ss.special += 9;
+				s.SetSpecial(ss);
+			}
+			else if (s.special >= 49 && s.special <= 51) // w wind
+			{
+				ss.special -= 9;
+				s.SetSpecial(ss);
+			}
+			else if (s.special >= 204 && s.special <= 206) // e scroll
+			{
+				ss.special += 6;
+				s.SetSpecial(ss);
+			}
+			else if (s.special >= 210 && s.special <= 212) // w scroll
+			{
+				ss.special -= 6;
+				s.SetSpecial(ss);
+			}
+			else if (s.special >= 213 && s.special <= 215) // nw scroll
+			{
+				ss.special += 3;
+				s.SetSpecial(ss);
+			}
+			else if (s.special >= 216 && s.special <= 218) // ne scroll
+			{
+				ss.special -= 3;
+				s.SetSpecial(ss);
+			}
+			else if (s.special >= 219 && s.special <= 221) // se scroll
+			{
+				ss.special += 3;
+				s.SetSpecial(ss);
+			}
+			else if (s.special >= 220 && s.special <= 222) // sw scroll
+			{
+				ss.special -= 3;
+				s.SetSpecial(ss);
+			}
+		} */
 	}
 }
 
@@ -138,13 +181,15 @@ class LevelFlipper : LevelPostProcessor
 		{
 			if ((CVar.FindCVar("flipper_method").GetInt() & 2) == 2)
 			{
-				for (int i = 0; i < level.vertexes.size(); i++) {
+				for (int i = 0; i < level.vertexes.size(); i++)
+				{
 					double x = level.vertexes[i].p.x * -1;
 					double y = level.vertexes[i].p.y;
 					setVertex(i, x, y);
 				}
-				for (int i = 0; i < level.lines.size(); i++) {
-					FlipLine(i);
+				for (int i = 0; i < level.lines.size(); i++)
+				{
+					FlipLineVertexes(i);
 					double lx = level.lines[i].v1.p.x - level.lines[i].v2.p.x;
 					double ly = level.lines[i].v1.p.y - level.lines[i].v2.p.y;
 					double length = sqrt(lx * lx + ly * ly);
@@ -156,6 +201,16 @@ class LevelFlipper : LevelPostProcessor
 									-level.lines[i].sidedef[s].GetTextureXOffset(p) - length);
 								level.lines[i].sidedef[s].MultiplyTextureXScale(p, -1.0);
 							}
+				}
+				for (int i = 0; i < level.sectors.size(); i++)
+				{
+					for (int g = 0; g < 2; g++)
+					{
+						double sc = level.sectors[i].GetXScale(g);
+						level.sectors[i].SetXScale(g, -sc);
+						double sa = level.sectors[i].GetAngle(g);
+						level.sectors[i].SetAngle(g, (540 - sa) % 360);
+					}
 				}
 				for (int i = 0; i < GetThingCount(); i++) {
 					Vector3 thingpos = GetThingPos(i);
