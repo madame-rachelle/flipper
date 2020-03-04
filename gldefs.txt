@@ -2,5 +2,10 @@ hardwareshader postprocess beforebloom
 {
 	Name "flipper"
 	Shader "shaders/flipper.fp" 330
-	Enabled
+}
+
+hardwareshader postprocess scene
+{
+	Name "flipperscene"
+	Shader "shaders/flipper.fp" 330
 }

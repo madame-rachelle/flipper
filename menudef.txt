@@ -4,12 +4,22 @@ OptionValue "FlipperTypes"
 	1, "Shader"
 	2, "Map"
 	4, "Sprites"
+	8, "Weapon Sprites"
 
 	3, "Shader + Map"
 	5, "Shader + Sprites"
 	6, "Map + Sprites"
 
-	7, "Flip All"
+	7, "Shader + Map + Sprites"
+
+	9, "Shader + Weapon"
+	10, "Map + Weapon"
+	11, "Shader + Map + Weapon"
+	12, "Sprites + Weapon"
+	13, "Shader + Sprites + Weapon"
+	14, "Map + Sprites + Weapon"
+
+	15, "Flip All"
 }
 
 AddOptionMenu "OptionsMenu"

@@ -29,14 +29,21 @@
 // flipper_method & 1 = enable shader and turn reversing (the 'fake' backwards method)
 // flipper_method & 2 = enable levelpostprocessor method (the vertex and line flipping method)
 // flipper_method & 4 = enable sprite flipping (useful with method 1)
+// flipper_method & 8 = enable playersprite flipping (weapons)
 
 class FlipperHandler : EventHandler
 {
 	PlayerInfo ptr, console_ptr;
 	override void UiTick()
 	{
+		bool viewflip = (CVar.FindCVar("flipper_method").GetInt() & 1) == 1;
+		bool screenflip = (CVar.FindCVar("flipper_method").GetInt() & 8) == 8;
+
 		if (console_ptr)
-			Shader.SetEnabled(ptr, "flipper", (CVar.FindCVar("flipper_method").GetInt() & 1) == 1);
+		{
+			Shader.SetEnabled(ptr, "flipper", (viewflip ^ screenflip));
+			Shader.SetEnabled(ptr, "flipperscene", (screenflip));
+		}
 	}
 	override void PlayerEntered(PlayerEvent e)
 	{
