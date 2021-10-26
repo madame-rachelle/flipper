@@ -48,16 +48,19 @@ class FlipperHandler : EventHandler
 		ptr = players[e.PlayerNumber];
 		if (e.PlayerNumber == consoleplayer)
 			console_ptr = ptr;
-		ptr.mo.A_GiveInventory("FlipperInventory");
+		if ((ptr) && (ptr.mo))
+			ptr.mo.A_GiveInventory("FlipperInventory");
 	}
 	override void PlayerDied(PlayerEvent e)
 	{
-		ptr.mo.A_TakeInventory("FlipperInventory");
+		if ((ptr) && (ptr.mo))
+			ptr.mo.A_TakeInventory("FlipperInventory");
 	}
 	override void PlayerRespawned(PlayerEvent e)
 	{
 		ptr = players[e.PlayerNumber];
-		ptr.mo.A_GiveInventory("FlipperInventory");
+		if ((ptr) && (ptr.mo))
+			ptr.mo.A_GiveInventory("FlipperInventory");
 	}
 	override void WorldThingSpawned(WorldEvent e)
 	{
